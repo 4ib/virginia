@@ -1,0 +1,22 @@
+{
+  "name": "virginiajs",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "directories": {},
+  "dependencies": {
+    "backbone": "^1.3.3",
+    "handlebars": "^2.0.0",
+    "jquery": "1.11.2",
+    "requirejs": "2.3.3",
+    "underscore": "1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+  },
+  "author": "4ib",
+  "license": "ISC"
+}
