@@ -14,5 +14,8 @@
         return Handlebars;
     });
 
-	return Virginia;
+    define('virginia', function () {
+        return Virginia;
+    });
+
 }));

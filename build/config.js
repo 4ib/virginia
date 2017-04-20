@@ -9,7 +9,7 @@
 	},
 	"include": ["virginia"],
 	"exclude": ["jquery", "underscore", "backbone", "handlebars"],
-	"out": "../dist/virginia.js",
+	"out": "../dist/virginia.min.js",
     //"optimize": "none",
 	"wrap": {
 		"startFile": "wrap.start.js",

@@ -1,1 +1,554 @@
-!function(e,t){"function"==typeof define&&define.amd?define(["jquery","underscore","backbone","handlebars"],t):e.Virginia=t(e.$,e._,e.Backbone,e.Handlebars)}(this,function(e,t,n,i){return define("src/common",[],function(){var e={escape_html:function(e){return e?e.replace(/[&<"']/g,function(e){switch(e){case"&":return"&amp;";case"<":return"&lt;";case'"':return"&quot;";default:return"&#039;"}}):e},break_lines:function(e){return e?e.replace(/(?:\r\n|\r|\n)/g,"<br />"):e}};return e}),define("src/templates",["jquery","handlebars","src/common"],function(e,t,n){var i={_html_cache:{},_templates_cache:{},_global_context:{},get:function(n){if(i._templates_cache.hasOwnProperty(n)){var r=i._templates_cache[n],o=i._html_cache[n],s=e.Deferred();return setTimeout(function(){s.resolve(r,o)},1),s.promise()}var c=e.Deferred(function(r){e.get(n).done(function(e){i.process_tags(e).done(function(e){var o=t.compile(e);i._html_cache[n]=e,i._templates_cache[n]=o,r.resolve(o,e)})}).fail(function(){throw new Error("Could not load template "+n)})});return c.promise()},preload:function(){var t=[];if(arguments.length>0)for(var n=0;n<arguments.length;n++){var r=arguments[n];t.push(i.get(r))}return e.when.apply(e,t)},render:function(t,n){var r=e.extend({},i._global_context,n);return t(r)},add_to_global_context:function(t){i._global_context=e.extend(i._global_context,t)},_re_include:/\{\{include\s+'([^']+)'\s*\}\}/i,process_tags:function(t){var n=i._re_include.exec(t);if(n){var r=n[0],o=n[1].replace(/\\/g,"/"),s=i._template_url(o),c=e.Deferred(function(e){i.get(s).done(function(e,n){t=t.replace(r,n),i.process_tags(t).done(function(e){c.resolve(e)})})});return c.promise()}return e.Deferred().resolve(t).promise()},_template_url:function(e){return e},helpers:{raw:function(e){return new t.SafeString(e)},escape:function(e){return encodeURI(e)},unescape:function(e){return decodeURI(e)},eq:function(e,t,n){return e==t?n.fn(this):n.inverse(this)},noeq:function(e,t,n){return e!=t?n.fn(this):n.inverse(this)},break_lines:function(e){return new t.SafeString(n.break_lines(n.escape_html(e)))},condition:function(e,t,n,i){var r=!1;switch(t){case"==":r=e==n;break;case"!=":r=e!=n;break;case">=":case"gte":r=e>=n;break;case">":case"gt":r=e>n;break;case"<=":case"lte":r=e<=n;break;case"<":case"lt":r=e<n;break;default:console.error('condition hb tag: unexpected operator "'+t+'".'),r=!1}return r?i.fn(this):i.inverse(this)},moment:function(e,t){if(!e)throw"Date in not defined for 'moment' Handlebars helper!";if(!window.moment)throw"moment hb helper: moment.js lib is not loaded";var n=new Date(e);return moment(n).format(t)},moment_humanize_duration:function(e,t){if(!e)throw"Date in not defined for 'moment_duration' Handlebars helper!";if(!window.moment)throw"moment hb helper: moment.js lib is not loaded";return e="number"==typeof e?e:parseInt(e),moment.duration(e,t).humanize()}},register_helpers:function(){e.each(this.helpers,function(e,n){t.registerHelper(e,n)})},init:function(){this.register_helpers()}};return i}),define("src/view",["jquery","underscore","backbone","src/templates"],function(e,t,n,i){var r=n.View.extend({template_name:"please set path to template path",after_initialize:function(){},render:function(e){var t=this;return this._rendered=!1,this.load_template(this.template_name).done(function(e){t._render_template(e)}),this},load_template:function(e){return Virginia.Templates.get(e)},_render_template:function(e){var t=this.get_context(),n=this._process_template(e,t);this.template=e,this.$el.html(n),this.delegateEvents(),this.after_render(),this._rendered=!0,this.trigger("rendered")},_process_template:function(e,t){var n=i.render(e,t);return n},html_render:function(e){return this.template(e)},is_rendered:function(){return this._rendered||!1},get_context:function(){return{}},after_render:function(){},focus:function(){this.$("input:first").focus()},bind_selectors:function(){var e=t.result(this,"base_selectors",{}),n=t.result(this,"selectors",{}),i=t.extend({},e,n);for(var r in i)i.hasOwnProperty(r)&&(this["$"+r]=this.$(i[r]))},show:function(){this.$el.show()},hide:function(){this.$el.hide()},clear:function(){this.undelegateEvents(),this.stopListening(),this.$el&&this.$el.length>0&&this.$el.empty(),this.trigger("destroy")}});return r}),define("src/model-view",["src/view"],function(e){var t=e.extend({initialize:function(e){this.options=e,this.fetch_model=!1,this.create_model(e),this.fetch_and_render(),this.after_initialize()},create_model:function(e){if(!this.model){if(!e.model_id)throw"Virginia.BaseModelView needs model or model_id";var t=e.model_class||this.model_class;if(!t)throw"Virginia.BaseModelView needs model_class";var n=t.prototype.idAttribute,i={};i[n]=e.model_id,this.model=new t(i,e.model_options||{}),this.fetch_model=!0}},fetch_and_render:function(){this.fetch_model?(this.model.fetch().done(function(){this.render()}.bind(this)),this.fetch_model=!1):this.render()},get_context:function(){return{model:this.model.toJSON()}}});return t}),define("src/collection-view",["src/view"],function(e){return BaseCollectionView=e.extend({initialize:function(e){if(this.options=e,this.collection)this.render();else{var t=e.collection_class||this.collection_class;if(!t)throw"Virginia.BaseCollectionView.initialize needs collection_class";this.collection=new t([],e.collection_options||{}),this.fetch_and_render()}this.after_initialize()},fetch_and_render:function(){this.collection.fetch().done(function(){this.render()}.bind(this))},get_context:function(){return{collection:this.collection.toJSON()}}}),BaseCollectionView}),define("virginia",["require","src/templates","src/view","src/model-view","src/collection-view","src/common"],function(e){"use strict";var t={Templates:e("src/templates"),BaseView:e("src/view"),BaseModelView:e("src/model-view"),BaseCollectionView:e("src/collection-view"),Common:e("src/common")};return t.Templates.init(),{version:"0.0.1",Virginia:t}}),define("jquery",function(){return e}),define("underscore",function(){return t}),define("backbone",function(){return n}),define("handlebars",function(){return i}),Virginia});
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD.
+		define(['jquery', 'underscore', 'backbone', 'handlebars'], factory);
+	} else {
+		// Browser globals
+		root.Virginia = factory(root.$, root._, root.Backbone, root.Handlebars);
+	}
+}(this, function ($, _, Backbone, Handlebars) {
+define( 'src/common',[],function(){
+
+	var Common = {
+
+		escape_html: function (unsafe) {
+			if (!unsafe){
+				return unsafe;
+			}
+
+			return unsafe.replace(/[&<"']/g, function(m) {
+				switch (m) {
+					case '&':
+						return '&amp;';
+					case '<':
+						return '&lt;';
+					case '"':
+						return '&quot;';
+					default:
+						return '&#039;';
+				}
+			});
+		},
+
+		break_lines: function(s) {
+			if (s) {
+				return s.replace(/(?:\r\n|\r|\n)/g, '<br />')
+			}
+			return s;
+		}
+
+	};
+
+	return Common;
+
+});
+define('src/templates',[
+	'jquery',
+	'handlebars',
+	'src/common'
+], function($, Handlebars, Common){
+
+	var Templates = {
+
+		_html_cache: {},
+		_templates_cache: {},
+
+		_global_context: {},
+
+		/**
+		 * Finds template in cache or load them (and save in cache)
+		 * @param template_url
+		 * @returns {Promise} promise with template function
+		 */
+		get: function (template_url) {
+			if (Templates._templates_cache.hasOwnProperty(template_url)) {
+				var t = Templates._templates_cache[template_url];
+				var html = Templates._html_cache[template_url];
+				//console.log('Template ' + template_url + ' found in cache.');
+				var d1 = $.Deferred();
+				setTimeout(
+					function () {
+						d1.resolve(t, html);
+					},
+					1
+				);
+				return d1.promise();
+			} else {
+				var d = $.Deferred(function (defer) {
+					//console.log('Template ' + template_url + ' loading...');
+					$.get(template_url)
+						.done(function (response) {
+							Templates.process_tags(response)
+								.done(function (processed_response) {
+									var t = Handlebars.compile(processed_response);
+									Templates._html_cache[template_url] = processed_response;
+									Templates._templates_cache[template_url] = t;
+									//console.log('Template ' + template_url + ' loaded.');
+									defer.resolve(t, processed_response);
+								});
+						})
+						.fail(function () {
+							//console.error('Could not load template ' + template_url);
+							//defer.reject();
+							throw new Error('Could not load template ' + template_url);
+						});
+				});
+				return d.promise();
+			}
+		},
+
+		/**
+		 * Preload templates
+		 * @arguments list of template urls for preloading
+		 */
+		preload: function () {
+			var promises = [];
+			if (arguments.length > 0) {
+				for (var i = 0; i < arguments.length; i++) {
+					var template_name = arguments[i];
+					promises.push(Templates.get(template_name));
+				}
+			}
+
+			// wait for all promises
+			return $.when.apply($, promises);
+		},
+
+		/**
+		 * Merge global and passed context and render it with template
+		 * @param template {function} Template function
+		 * @param context {Object} Template context
+		 * @returns {String} result of template processing
+		 */
+		render: function (template, context) {
+			// merge local & global contexts and render template
+			var cntx = $.extend(
+				{},
+				Templates._global_context,
+				context
+			);
+
+			return template(cntx);
+		},
+
+		/**
+		 * Merges context in global context
+		 * @param {Object} context
+		 */
+		add_to_global_context: function (context) {
+			Templates._global_context = $.extend(
+				Templates._global_context,
+				context
+			);
+		},
+
+		_re_include: /\{\{include\s+'([^']+)'\s*\}\}/i,
+		/**
+		 * Load & insert {{includes .. }} tags content
+		 * @param html
+		 */
+		process_tags: function (html) {
+			var re_result = Templates._re_include.exec(html);
+			if (re_result) {
+				var include_tag = re_result[0];
+				var template_path = re_result[1].replace(/\\/g, '/');
+				var template_url = Templates._template_url(template_path);
+				// TODO: search template in _html_cache
+				var d = $.Deferred(function (defer) {
+					Templates
+						.get(template_url)
+						.done(function (tmpl, include_html) {
+							html = html.replace(include_tag, include_html);
+							Templates.process_tags(html).done(function (s) {
+								d.resolve(s);
+							});
+						});
+				});
+				return d.promise();
+
+			} else {
+				return $.Deferred().resolve(html).promise();
+			}
+		},
+
+		_template_url: function (template_path) {
+			return template_path;
+		},
+
+		helpers: {
+
+			raw: function(text){
+				return new Handlebars.SafeString(text);
+			},
+
+			escape: function(text){
+				// handlebars escapes by default ?
+				return encodeURI(text);
+			},
+
+			unescape: function(text){
+				return decodeURI(text)
+			},
+
+			eq: function(a, b, options){
+				if( a == b )
+					return options.fn(this);
+				else
+					return options.inverse(this);
+			},
+
+			noeq: function(a, b, options){
+				if( a != b )
+					return options.fn(this);
+				else
+					return options.inverse(this);
+			},
+
+			break_lines: function(text){
+				return new Handlebars.SafeString( Common.break_lines( Common.escape_html( text ) ) );
+			},
+
+			condition: function(l, op, r, options){
+				var result = false;
+				switch (op){
+					case '==': {
+						result = l == r;
+						break;
+					}
+					case '!=': {
+						result = l != r;
+						break;
+					}
+					case '>=':
+					case 'gte':
+					{
+						result = l >= r;
+						break;
+					}
+					case '>':
+					case 'gt':
+					{
+						result = l > r;
+						break;
+					}
+					case '<=':
+					case 'lte':
+					{
+						result = l <= r;
+						break;
+					}
+					case '<':
+					case 'lt':
+					{
+						result = l < r;
+						break;
+					}
+					default: {
+						console.error('condition hb tag: unexpected operator "' + op + '".');
+						result = false;
+					}
+				}
+
+				if( result )
+					return options.fn(this);
+				else
+					return options.inverse(this);
+			},
+
+			moment: function(dt, format){
+				if(!dt) {
+					throw 'Date in not defined for \'moment\' Handlebars helper!';
+				}
+
+				if (!window.moment){
+					throw 'moment hb helper: moment.js lib is not loaded';
+				}
+
+				var date = new Date(dt);
+
+				return moment(date).format(format);
+			},
+
+			moment_humanize_duration: function(time, format){
+				if(!time) {
+					throw 'Date in not defined for \'moment_duration\' Handlebars helper!';
+				}
+
+				if (!window.moment){
+					throw 'moment hb helper: moment.js lib is not loaded';
+				}
+
+				time = (typeof time === 'number') ? time : parseInt(time);
+
+				return moment.duration(time, format).humanize();
+			}
+
+		},
+
+		register_helpers: function(){
+			$.each(this.helpers, function(name, helper){
+				Handlebars.registerHelper(name, helper)
+			});
+		},
+
+		init: function(){
+			this.register_helpers();
+		}
+	};
+
+	return Templates;
+});
+
+define('src/view',[
+	'jquery',
+	'underscore',
+	'backbone',
+	'src/templates'
+], function($, _, Backbone, Templates){
+
+	var BaseView = Backbone.View.extend({
+
+		template_name: 'please set path to template path',
+
+		after_initialize: function(){
+			// none
+		},
+
+		render: function ( rendered ) {
+			var self = this;
+			this._rendered = false;
+
+			this
+				.load_template(this.template_name)
+				.done(function (template) {
+					self._render_template(template);
+				});
+
+			return this;
+		},
+
+		load_template: function(template_name){
+			return Virginia.Templates.get(template_name);
+		},
+
+		_render_template: function (template) {
+			var context = this.get_context();
+			var html = this._process_template(template, context);
+			this.template = template;
+			this.$el.html(html);
+			this.delegateEvents();
+			this.after_render();
+			this._rendered = true;
+			this.trigger('rendered');
+		},
+
+
+		_process_template: function(template, context){
+			var html = Templates.render(template, context);
+			return html;
+		},
+
+		/**
+		 *
+		 * @param context
+		 * @returns rendered string with html
+		 */
+		html_render: function( context ){
+			return this.template( context );
+		},
+
+		/**
+		 *
+		 * @returns rendered status
+		 */
+		is_rendered: function(){
+			return this._rendered || false;
+		},
+
+		/**
+		 * Creates hb context for rendering.
+		 * @returns {{}}
+		 */
+		get_context: function(){
+			// override me
+			return {};
+		},
+
+		/**
+		 * Makes works after view rendered and events assigned
+		 */
+		after_render: function(){
+			// override me
+		},
+
+		focus: function(){
+			this.$('input:first').focus();
+		},
+
+
+		bind_selectors: function () {
+			var base_selectors = _.result(this, 'base_selectors', {});
+			var view_selectors = _.result(this, 'selectors', {});
+			var selectors = _.extend({}, base_selectors, view_selectors);
+			for (var key in selectors) {
+				if (selectors.hasOwnProperty(key)) {
+					this['$' + key] = this.$(selectors[key]);
+				}
+			}
+		},
+
+		show: function(){
+			this.$el.show();
+		},
+
+		hide: function(){
+			this.$el.hide();
+		},
+
+		clear: function(){
+			this.undelegateEvents();
+			this.stopListening();
+			if (this.$el && this.$el.length>0){
+				this.$el.empty();
+			}
+			this.trigger('destroy');
+		}
+
+
+	});
+
+	return BaseView;
+});
+define('src/model-view',[
+	'src/view'
+], function(BaseView){
+
+	var BaseModelView = BaseView.extend({
+
+		initialize: function(options){
+			this.options = options;
+			this.fetch_model = false;
+			this.create_model(options);
+			this.fetch_and_render();
+			this.after_initialize();
+		},
+
+		create_model: function(options){
+			if (!this.model) {
+				if (options.model_id){
+					// try to create model by id
+					var ModelClass = options.model_class || this.model_class;
+					if (!ModelClass) {
+						throw "Virginia.BaseModelView needs model_class";
+					}
+
+					var id_name = ModelClass.prototype.idAttribute;
+					var attrs = {};
+					attrs[id_name] = options.model_id;
+
+					this.model = new ModelClass(attrs, options.model_options || {});
+					this.fetch_model = true;
+				} else {
+					throw "Virginia.BaseModelView needs model or model_id";
+				}
+			}
+		},
+
+		fetch_and_render: function(){
+			if (this.fetch_model){
+				this.model
+					.fetch()
+					.done(function () {
+						this.render();
+					}.bind(this));
+				this.fetch_model = false;
+			} else {
+				this.render();
+			}
+		},
+
+		get_context: function(){
+			return {
+				model: this.model.toJSON()
+			};
+		}
+
+	});
+
+	return BaseModelView;
+});
+define('src/collection-view',[
+	'src/view'
+], function(BaseView){
+
+	BaseCollectionView = BaseView.extend({
+
+		initialize: function(options){
+			this.options = options;
+			if (!this.collection) {
+				var CollectionClass = options.collection_class || this.collection_class;
+				if (!CollectionClass) {
+					throw "Virginia.BaseCollectionView.initialize needs collection_class";
+				}
+				this.collection = new CollectionClass([], options.collection_options || {});
+				this.fetch_and_render();
+			} else {
+				this.render();
+			}
+			this.after_initialize();
+		},
+
+		fetch_and_render: function(){
+			this.collection
+				.fetch()
+				.done(function(){
+					this.render();
+				}.bind(this));
+		},
+
+		get_context: function(){
+			return {
+				collection: this.collection.toJSON()
+			};
+		}
+
+	});
+
+	return BaseCollectionView;
+});
+define('virginia',['require','src/templates','src/view','src/model-view','src/collection-view','src/common'],function(require) {
+	'use strict';
+
+	var Virginia = {
+		Templates: require('src/templates'),
+		BaseView: require('src/view'),
+		BaseModelView: require('src/model-view'),
+		BaseCollectionView: require('src/collection-view'),
+		Common: require('src/common')
+	};
+
+	Virginia.Templates.init();
+
+	return {
+		version: '0.0.1',
+		Virginia: Virginia
+	};
+});
+	define('jquery', function () {
+		return $;
+	});
+
+	define('underscore', function () {
+		return _;
+	});
+
+    define('backbone', function () {
+        return Backbone;
+    });
+
+    define('handlebars', function () {
+        return Handlebars;
+    });
+
+	return Virginia;
+}));
