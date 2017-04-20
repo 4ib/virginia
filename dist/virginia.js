@@ -550,5 +550,8 @@ define('virginia',['require','src/templates','src/view','src/model-view','src/co
         return Handlebars;
     });
 
-	return Virginia;
+    define('virginia', function () {
+        return Virginia;
+    });
+
 }));
