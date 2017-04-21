@@ -765,7 +765,7 @@ define('virginia/view',[
 		},
 
 		load_template: function(template_name){
-			return Virginia.Templates.get(template_name);
+			return Templates.get(template_name);
 		},
 
 		_render_template: function (template) {
