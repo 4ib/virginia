@@ -14,7 +14,13 @@
     "requirejs": "2.3.3",
     "underscore": "1.8.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "almond": "^0.3.3",
+    "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-requirejs-optimize": "^1.2.0",
+    "run-sequence": "^1.1.5"
+  },
   "scripts": {
   },
   "author": "4ib",

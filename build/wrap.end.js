@@ -6,16 +6,14 @@
 		return _;
 	});
 
-    define('backbone', function () {
-        return Backbone;
-    });
+	define('backbone', function () {
+		return Backbone;
+	});
 
-    define('handlebars', function () {
-        return Handlebars;
-    });
+	define('handlebars', function () {
+		return Handlebars;
+	});
 
-    define('virginia', function () {
-        return Virginia;
-    });
+	return require('virginia');
 
 }));

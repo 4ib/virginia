@@ -1,13 +1,4 @@
-(function (root, factory) {
-	if (typeof define === 'function' && define.amd) {
-		// AMD.
-		define(['jquery', 'underscore', 'backbone', 'handlebars'], factory);
-	} else {
-		// Browser globals
-		root.Virginia = factory(root.$, root._, root.Backbone, root.Handlebars);
-	}
-}(this, function ($, _, Backbone, Handlebars) {
-define( 'src/common',[],function(){
+define( 'virginia/common',[],function(){
 
 	var Common = {
 
@@ -42,10 +33,10 @@ define( 'src/common',[],function(){
 	return Common;
 
 });
-define('src/templates',[
+define('virginia/templates',[
 	'jquery',
 	'handlebars',
-	'src/common'
+	'virginia/common'
 ], function($, Handlebars, Common){
 
 	var Templates = {
@@ -299,11 +290,11 @@ define('src/templates',[
 	return Templates;
 });
 
-define('src/view',[
+define('virginia/view',[
 	'jquery',
 	'underscore',
 	'backbone',
-	'src/templates'
+	'virginia/templates'
 ], function($, _, Backbone, Templates){
 
 	var BaseView = Backbone.View.extend({
@@ -419,8 +410,8 @@ define('src/view',[
 
 	return BaseView;
 });
-define('src/model-view',[
-	'src/view'
+define('virginia/model-view',[
+	'virginia/view'
 ], function(BaseView){
 
 	var BaseModelView = BaseView.extend({
@@ -477,8 +468,8 @@ define('src/model-view',[
 
 	return BaseModelView;
 });
-define('src/collection-view',[
-	'src/view'
+define('virginia/collection-view',[
+	'virginia/view'
 ], function(BaseView){
 
 	BaseCollectionView = BaseView.extend({
@@ -516,42 +507,24 @@ define('src/collection-view',[
 
 	return BaseCollectionView;
 });
-define('virginia',['require','src/templates','src/view','src/model-view','src/collection-view','src/common'],function(require) {
+define('virginia',[
+	'virginia/templates',
+	'virginia/view',
+	'virginia/model-view',
+	'virginia/collection-view',
+	'virginia/common'
+], function(Templates, BaseView, BaseModelView, BaseCollectionView, Common) {
 	'use strict';
 
 	var Virginia = {
-		Templates: require('src/templates'),
-		BaseView: require('src/view'),
-		BaseModelView: require('src/model-view'),
-		BaseCollectionView: require('src/collection-view'),
-		Common: require('src/common')
+		Templates: Templates,
+		BaseView: BaseView,
+		BaseModelView: BaseModelView,
+		BaseCollectionView: BaseCollectionView,
+		Common: Common
 	};
 
 	Virginia.Templates.init();
 
-	return {
-		version: '0.0.1',
-		Virginia: Virginia
-	};
+	return Virginia;
 });
-	define('jquery', function () {
-		return $;
-	});
-
-	define('underscore', function () {
-		return _;
-	});
-
-    define('backbone', function () {
-        return Backbone;
-    });
-
-    define('handlebars', function () {
-        return Handlebars;
-    });
-
-    define('virginia', function () {
-        return Virginia;
-    });
-
-}));

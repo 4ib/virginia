@@ -6,7 +6,11 @@ module.exports = {
         "backbone": "../node_modules/backbone/backbone",
         "handlebars": "../node_modules/handlebars/dist/handlebars"
 	},
-	"include": ["virginia"],
+	"include": ["../node_modules/almond/almond", "virginia"],
 	"exclude": ["jquery", "underscore", "backbone", "handlebars"],
-    "optimize": "none"
+    "optimize": "none",
+    "wrap": {
+		"startFile": "build/wrap.start.js",
+		"endFile": "build/wrap.end.js"
+	}
 }
