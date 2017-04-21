@@ -448,7 +448,7 @@ define( 'virginia/common',[],function(){
 
 	var Common = {
 
-		escape_html: function (unsafe) {
+		escape_html: function(unsafe) {
 			if (!unsafe){
 				return unsafe;
 			}
@@ -472,6 +472,28 @@ define( 'virginia/common',[],function(){
 				return s.replace(/(?:\r\n|\r|\n)/g, '<br />')
 			}
 			return s;
+		},
+
+		money: function(number, options) {
+			var result = Math.abs(number).toFixed(3).replace(/\d$/,'');
+
+			if(options.thousands_separator) {
+				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + options.thousands_separator);
+			}
+
+			if(options.currency) {
+				if(options.currency_position === 'left') {
+					result = options.currency + result;
+				} else {
+					result = result + options.currency;
+				}
+			}
+
+			if(number < 0) {
+				result = '-' + result;
+			}
+
+			return result;
 		}
 
 	};
@@ -718,6 +740,21 @@ define('virginia/templates',[
 				time = (typeof time === 'number') ? time : parseInt(time);
 
 				return moment.duration(time, format).humanize();
+			},
+
+			money: function(text, currency, currency_position){
+				if (text != null) {
+					if (text.indexOf && text.indexOf('.') >= 0) {
+						text = text.replace(/,/g, '');
+					}
+				} else {
+					text = 0;
+				}
+
+				return Common.money( parseFloat(text), {
+					'currency': typeof currency === 'string' ? currency : '$',
+					'currency_position': typeof currency_position === 'string' ? currency_position : 'left'
+				} );
 			}
 
 		},
