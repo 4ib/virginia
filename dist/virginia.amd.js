@@ -502,8 +502,10 @@ define( 'virginia/common',[],function(){
 
 });
 define('virginia/templates',[
+	'jquery',
+	'handlebars',
 	'virginia/common'
-], function(Common){
+], function($, Handlebars, Common){
 
 	var Templates = {
 
@@ -758,7 +760,7 @@ define('virginia/templates',[
 		},
 
 		register_helpers: function(){
-			_.each(this.helpers, function(name, helper){
+			$.each(this.helpers, function(name, helper){
 				Handlebars.registerHelper(name, helper)
 			});
 		},
@@ -772,8 +774,11 @@ define('virginia/templates',[
 });
 
 define('virginia/view',[
+	'jquery',
+	'handlebars',
+	'backbone',
 	'virginia/templates'
-], function(Templates){
+], function($, Handlebars, Backbone, Templates){
 
 	var BaseView = Backbone.View.extend({
 
