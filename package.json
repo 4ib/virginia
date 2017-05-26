@@ -9,8 +9,8 @@
   "directories": {},
   "dependencies": {
     "backbone": "^1.3.3",
-    "handlebars": "^2.0.0",
-    "jquery": "1.11.2",
+    "handlebars": "^4.0.10",
+    "jquery": "3.2.1",
     "requirejs": "2.3.3",
     "underscore": "1.8.3"
   },
