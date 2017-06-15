@@ -314,9 +314,9 @@ define('virginia/templates',[
 		},
 
 		register_helpers: function(){
-			$.each(this.helpers, function(name, helper){
-				Handlebars.registerHelper(name, helper)
-			});
+			for (var name in this.helpers) {
+				Handlebars.registerHelper(name, this.helpers[name]);
+			}
 		},
 
 		init: function(){
