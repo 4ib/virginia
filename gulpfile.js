@@ -1,7 +1,7 @@
 const gulp = require( 'gulp' );
 const requirejsOptimize = require( 'gulp-requirejs-optimize' );
 const rename = require( 'gulp-rename' );
-var runSequence = require( 'run-sequence' );
+const runSequence = require( 'run-sequence' );
 const config = require( './build/config.js' );
 const configAmd = require( './build/config.amd.js' );
 
