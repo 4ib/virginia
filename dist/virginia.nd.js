@@ -78,7 +78,7 @@ define('virginia/templates',[
 				var t = Templates._templates_cache[template_url];
 				var html = Templates._html_cache[template_url];
 				//console.log('Template ' + template_url + ' found in cache.');
-				var d1 = $.Deferred();
+				var d1 = jQuery.Deferred();
 				setTimeout(
 					function () {
 						d1.resolve(t, html);
@@ -87,9 +87,9 @@ define('virginia/templates',[
 				);
 				return d1.promise();
 			} else {
-				var d = $.Deferred(function (defer) {
+				var d = jQuery.Deferred(function (defer) {
 					//console.log('Template ' + template_url + ' loading...');
-					$.get(template_url)
+					jQuery.get(template_url)
 						.done(function (response) {
 							Templates.process_tags(response)
 								.done(function (processed_response) {
@@ -124,7 +124,7 @@ define('virginia/templates',[
 			}
 
 			// wait for all promises
-			return $.when.apply($, promises);
+			return jQuery.when.apply(jQuery, promises);
 		},
 
 		/**
@@ -135,7 +135,7 @@ define('virginia/templates',[
 		 */
 		render: function (template, context) {
 			// merge local & global contexts and render template
-			var cntx = $.extend(
+			var cntx = jQuery.extend(
 				{},
 				Templates._global_context,
 				context
@@ -149,7 +149,7 @@ define('virginia/templates',[
 		 * @param {Object} context
 		 */
 		add_to_global_context: function (context) {
-			Templates._global_context = $.extend(
+			Templates._global_context = jQuery.extend(
 				Templates._global_context,
 				context
 			);
@@ -167,7 +167,7 @@ define('virginia/templates',[
 				var template_path = re_result[1].replace(/\\/g, '/');
 				var template_url = Templates._template_url(template_path);
 				// TODO: search template in _html_cache
-				var d = $.Deferred(function (defer) {
+				var d = jQuery.Deferred(function (defer) {
 					Templates
 						.get(template_url)
 						.done(function (tmpl, include_html) {
@@ -180,7 +180,7 @@ define('virginia/templates',[
 				return d.promise();
 
 			} else {
-				return $.Deferred().resolve(html).promise();
+				return jQuery.Deferred().resolve(html).promise();
 			}
 		},
 
