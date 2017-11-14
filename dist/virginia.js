@@ -74,39 +74,52 @@ define('virginia/templates',[
 		 * @returns {Promise} promise with template function
 		 */
 		get: function (template_url) {
-			if (Templates._templates_cache.hasOwnProperty(template_url)) {
-				var t = Templates._templates_cache[template_url];
-				var html = Templates._html_cache[template_url];
-				//console.log('Template ' + template_url + ' found in cache.');
-				var d1 = jQuery.Deferred();
+			var normalized_url = this._normalize_template_url(template_url);
+			if ( window.JST && window.JST.hasOwnProperty(normalized_url) ) {
+				var t = window.JST[normalized_url];
+				var d2 = jQuery.Deferred();
 				setTimeout(
 					function () {
-						d1.resolve(t, html);
+						d2.resolve(t);
 					},
 					1
 				);
-				return d1.promise();
+				return d2.promise();
 			} else {
-				var d = jQuery.Deferred(function (defer) {
-					//console.log('Template ' + template_url + ' loading...');
-					jQuery.get(template_url)
-						.done(function (response) {
-							Templates.process_tags(response)
-								.done(function (processed_response) {
-									var t = Handlebars.compile(processed_response);
-									Templates._html_cache[template_url] = processed_response;
-									Templates._templates_cache[template_url] = t;
-									//console.log('Template ' + template_url + ' loaded.');
-									defer.resolve(t, processed_response);
-								});
-						})
-						.fail(function () {
-							//console.error('Could not load template ' + template_url);
-							//defer.reject();
-							throw new Error('Could not load template ' + template_url);
-						});
-				});
-				return d.promise();
+				if (Templates._templates_cache.hasOwnProperty(template_url)) {
+					var t = Templates._templates_cache[template_url];
+					var html = Templates._html_cache[template_url];
+					//console.log('Template ' + template_url + ' found in cache.');
+					var d1 = jQuery.Deferred();
+					setTimeout(
+						function () {
+							d1.resolve(t, html);
+						},
+						1
+					);
+					return d1.promise();
+				} else {
+					var d = jQuery.Deferred(function (defer) {
+						//console.log('Template ' + template_url + ' loading...');
+						jQuery.get(template_url)
+							.done(function (response) {
+								Templates.process_tags(response)
+									.done(function (processed_response) {
+										var t = Handlebars.compile(processed_response);
+										Templates._html_cache[template_url] = processed_response;
+										Templates._templates_cache[template_url] = t;
+										//console.log('Template ' + template_url + ' loaded.');
+										defer.resolve(t, processed_response);
+									});
+							})
+							.fail(function () {
+								//console.error('Could not load template ' + template_url);
+								//defer.reject();
+								throw new Error('Could not load template ' + template_url);
+							});
+					});
+					return d.promise();
+				}
 			}
 		},
 
@@ -186,6 +199,19 @@ define('virginia/templates',[
 
 		_template_url: function (template_path) {
 			return template_path;
+		},
+
+		/**
+		 * Replace get template api with regular path
+		 * api url: '/my/api/2/templates?name='
+		 */
+		_normalize_template_url: function( template_url ) {
+			var api_url = '/my/api/2/templates?name=';
+			if( template_url.indexOf( api_url ) >= 0 ) {
+				return template_url.replace( api_url, 'templates/' );
+			} else {
+				return template_url;
+			}
 		},
 
 		helpers: {
