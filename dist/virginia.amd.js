@@ -768,7 +768,7 @@ define('virginia/templates',[
 				return moment.duration(time, format).humanize();
 			},
 
-			money: function(text, currency, currency_position){
+			money: function(text, currency, currency_position, thousands_separator){
 				if (text != null) {
 					if (text.indexOf && text.indexOf('.') >= 0) {
 						text = text.replace(/,/g, '');
@@ -779,7 +779,8 @@ define('virginia/templates',[
 
 				return Common.money( parseFloat(text), {
 					'currency': typeof currency === 'string' ? currency : '$',
-					'currency_position': typeof currency_position === 'string' ? currency_position : 'left'
+					'currency_position': typeof currency_position === 'string' ? currency_position : 'left',
+					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : ','
 				} );
 			}
 
