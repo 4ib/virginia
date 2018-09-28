@@ -334,6 +334,20 @@ define('virginia/templates',[
 					'currency_position': typeof currency_position === 'string' ? currency_position : 'left',
 					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : ','
 				} );
+			},
+
+			percent: function(text) {
+				var result = 0;
+				if (text != null) {
+					if (text.indexOf && text.indexOf(',') >= 0) {
+						text = text.replace(/,/g, '');
+					}
+					result = Number(text).toFixed(2);
+					if (result % 1 === 0) {
+						result = parseInt(text);
+					}
+				}
+				return result + '%';
 			}
 
 		},
