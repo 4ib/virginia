@@ -29,7 +29,13 @@ define( 'virginia/common',[],function(){
 		},
 
 		money: function(number, options) {
-			var result = Math.abs(number).toFixed(3).replace(/\d$/,'');
+			var result;
+
+			if(options.rate) {
+				number = number * options.rate;
+			}
+
+			result = Math.abs(number).toFixed(3).replace(/\d$/,'');
 
 			if(options.thousands_separator) {
 				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + options.thousands_separator);
@@ -320,7 +326,7 @@ define('virginia/templates',[
 				return moment.duration(time, format).humanize();
 			},
 
-			money: function(text, currency, currency_position, thousands_separator){
+			money: function(text, currency, currency_position, thousands_separator, rate){
 				if (text != null) {
 					if (text.indexOf && text.indexOf('.') >= 0) {
 						text = text.replace(/,/g, '');
@@ -332,7 +338,8 @@ define('virginia/templates',[
 				return Common.money( parseFloat(text), {
 					'currency': typeof currency === 'string' ? currency : '$',
 					'currency_position': typeof currency_position === 'string' ? currency_position : 'left',
-					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : ','
+					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : ',',
+					'rate': typeof rate === 'string' ? parseFloat(rate) : null
 				} );
 			},
 
