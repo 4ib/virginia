@@ -30,22 +30,39 @@ define( 'virginia/common',[],function(){
 
 		money: function(number, options) {
 			var result;
+			var opts_default = {
+				currency: '$',
+				currency_position: 'left',
+				thousands_separator: ',',
+				rate: ''
+			}
+			var opts = options;
 
-			if(options.rate) {
-				number = number * options.rate;
+			if( window.SiteSettings && window.SiteSettings.Currency ) {
+				opts_default = window.SiteSettings.Currency;
+			}
+
+			opts = _.mapObject( opts, function( val, key ) {
+				if( _.isNull(val) ) {
+					return opts_default[key];
+				}
+			} );
+
+			if(opts.rate && opts.rate.length) {
+				number = number * parseFloat(opts.rate);
 			}
 
 			result = Math.abs(number).toFixed(3).replace(/\d$/,'');
 
-			if(options.thousands_separator) {
-				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + options.thousands_separator);
+			if(opts.thousands_separator) {
+				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + opts.thousands_separator);
 			}
 
-			if(options.currency) {
-				if(options.currency_position === 'left') {
-					result = options.currency + result;
+			if(opts.currency) {
+				if(opts.currency_position === 'left') {
+					result = opts.currency + result;
 				} else {
-					result = result + options.currency;
+					result = result + opts.currency;
 				}
 			}
 
@@ -338,10 +355,10 @@ define('virginia/templates',[
 				}
 
 				return Common.money( parseFloat(text), {
-					'currency': typeof currency === 'string' ? currency : '$',
-					'currency_position': typeof currency_position === 'string' ? currency_position : 'left',
-					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : ',',
-					'rate': typeof rate === 'string' ? parseFloat(rate) : null,
+					'currency': typeof currency === 'string' ? currency : null,
+					'currency_position': typeof currency_position === 'string' ? currency_position : null,
+					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : null,
+					'rate': typeof rate === 'string' ? rate : null,
 				} );
 			},
 

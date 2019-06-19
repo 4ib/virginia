@@ -21,8 +21,7 @@
     "gulp-requirejs-optimize": "^1.2.0",
     "run-sequence": "^1.1.5"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "author": "4ib",
   "license": "ISC"
 }
