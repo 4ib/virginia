@@ -508,7 +508,7 @@ define( 'virginia/common',[],function(){
 				if(opts.currency_position === 'left') {
 					result = opts.currency + result;
 				} else {
-					result = result + '&nbsp;' + opts.currency;
+					result = result + '\xa0' + opts.currency;
 				}
 			}
 
