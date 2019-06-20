@@ -477,18 +477,23 @@ define( 'virginia/common',[],function(){
 		format_money: function(number, options) {
 			var result;
 
+			if(options.decimals && typeof options.decimals === 'string') {
+				// +1 - show trailing zero for cents
+				options.decimals = parseInt(options.decimals) + 1;
+			}
+
 			if(options.multiplier && options.multiplier.length) {
 				number = number * parseFloat(options.multiplier);
 			}
 
 			if(options.rate && options.rate.length) {
-				number = parseFloat( number / parseFloat(options.rate) ).toFixed(2);
+				number = parseFloat( number / parseFloat(options.rate) ).toFixed(options.decimals);
 			}
 
-			result = Math.abs(number).toFixed(3).replace(/\d$/,'');
+			result = Math.abs(number).toFixed(options.decimals).replace(/\d$/,'');
 
 			if(options.thousands_separator) {
-				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + options.thousands_separator);
+				result = result.replace(/(\d)(?:(?=\d+(?=[^\d.]))(?=(?:\d{3})+\b)|(?=\d+(?=\.))(?=(?:\d{3})+(?=\.)))/g, "$1" + options.thousands_separator);
 			}
 
 			if(options.currency) {
@@ -513,7 +518,8 @@ define( 'virginia/common',[],function(){
 				currency_position: 'left',
 				thousands_separator: ',',
 				multiplier: '',
-				rate: ''
+				rate: '',
+				decimals: 3
 			}
 			var opts = options;
 
@@ -521,9 +527,9 @@ define( 'virginia/common',[],function(){
 				opts_default = window.SiteSettings.Currency;
 			}
 
-			opts = _.mapObject( opts, function( val, key ) {
-				if( _.isNull(val) ) {
-					return opts_default[key];
+			_.each(_.keys(opts_default), function( key ) {
+				if( _.isNull(opts[key]) || _.isUndefined(opts[key]) ) {
+					opts[key] = opts_default[key];
 				}
 			} );
 
