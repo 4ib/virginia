@@ -474,12 +474,45 @@ define( 'virginia/common',[],function(){
 			return s;
 		},
 
+		format_money: function(number, options) {
+			var result;
+
+			if(options.multiplier && options.multiplier.length) {
+				number = number * parseFloat(options.multiplier);
+			}
+
+			if(options.rate && options.rate.length) {
+				number = parseFloat( number / parseFloat(options.rate) ).toFixed(2);
+			}
+
+			result = Math.abs(number).toFixed(3).replace(/\d$/,'');
+
+			if(options.thousands_separator) {
+				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + options.thousands_separator);
+			}
+
+			if(options.currency) {
+				if(options.currency_position === 'left') {
+					result = options.currency + result;
+				} else {
+					result = result + '\xa0' + options.currency;
+				}
+			}
+
+			if(number < 0) {
+				result = '-' + result;
+			}
+			return result;
+		},
+
 		money: function(number, options) {
 			var result;
+			var exchange;
 			var opts_default = {
 				currency: '$',
 				currency_position: 'left',
 				thousands_separator: ',',
+				multiplier: '',
 				rate: ''
 			}
 			var opts = options;
@@ -494,26 +527,11 @@ define( 'virginia/common',[],function(){
 				}
 			} );
 
-			if(opts.rate && opts.rate.length) {
-				number = number * parseFloat(opts.rate);
-			}
+			result = this.format_money(number, opts);
 
-			result = Math.abs(number).toFixed(3).replace(/\d$/,'');
-
-			if(opts.thousands_separator) {
-				result = result.replace(/(\d)(?=(\d{3})+(\.|$))/g, "$1" + opts.thousands_separator);
-			}
-
-			if(opts.currency) {
-				if(opts.currency_position === 'left') {
-					result = opts.currency + result;
-				} else {
-					result = result + '\xa0' + opts.currency;
-				}
-			}
-
-			if(number < 0) {
-				result = '-' + result;
+			if( window.SiteSettings && window.SiteSettings.CurrencyExchange ) {
+				exchange = this.format_money(number, window.SiteSettings.CurrencyExchange);
+				result += '\xa0\/ ' + exchange;
 			}
 
 			return result;
@@ -791,7 +809,7 @@ define('virginia/templates',[
 				return moment.duration(time, format).humanize();
 			},
 
-			money: function(text, currency, currency_position, thousands_separator, rate){
+			money: function(text, currency, currency_position, thousands_separator, multiplier){
 				if (text != null) {
 					if (text.indexOf && text.indexOf('.') >= 0) {
 						text = text.replace(/,/g, '');
@@ -804,7 +822,7 @@ define('virginia/templates',[
 					'currency': typeof currency === 'string' ? currency : null,
 					'currency_position': typeof currency_position === 'string' ? currency_position : null,
 					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : null,
-					'rate': typeof rate === 'string' ? rate : null,
+					'multiplier': typeof multiplier === 'string' ? multiplier : null
 				} );
 			},
 
