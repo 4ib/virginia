@@ -32,8 +32,7 @@ define( 'virginia/common',[],function(){
 			var result;
 
 			if(options.decimals && typeof options.decimals === 'string') {
-				// +1 - show trailing zero for cents
-				options.decimals = parseInt(options.decimals) + 1;
+				options.decimals = parseInt(options.decimals);
 			}
 
 			if(options.multiplier && options.multiplier.length) {
@@ -44,7 +43,7 @@ define( 'virginia/common',[],function(){
 				number = parseFloat( number / parseFloat(options.rate) ).toFixed(options.decimals);
 			}
 
-			result = Math.abs(number).toFixed(options.decimals).replace(/\d$/,'');
+			result = Math.abs(number).toFixed(options.decimals);
 
 			if(options.thousands_separator) {
 				result = result.replace(/(\d)(?:(?=\d+(?=[^\d.]))(?=(?:\d{3})+\b)|(?=\d+(?=\.))(?=(?:\d{3})+(?=\.)))/g, "$1" + options.thousands_separator);
