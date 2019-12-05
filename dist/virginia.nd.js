@@ -379,7 +379,8 @@ define('virginia/templates',[
 					'currency': typeof currency === 'string' ? currency : null,
 					'currency_position': typeof currency_position === 'string' ? currency_position : null,
 					'thousands_separator':  typeof thousands_separator === 'string' ? thousands_separator : null,
-					'multiplier': typeof multiplier === 'string' ? multiplier : null
+					'multiplier': typeof multiplier === 'string' ? multiplier : null,
+					'decimals':  typeof decimals === 'string' ? parseInt(decimals) : null
 				} );
 			},
 
