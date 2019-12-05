@@ -366,7 +366,7 @@ define('virginia/templates',[
 				return moment.duration(time, format).humanize();
 			},
 
-			money: function(text, currency, currency_position, thousands_separator, multiplier){
+			money: function(text, currency, currency_position, thousands_separator, multiplier, decimals){
 				if (text != null) {
 					if (text.indexOf && text.indexOf('.') >= 0) {
 						text = text.replace(/,/g, '');
