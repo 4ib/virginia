@@ -94,6 +94,22 @@ define( 'virginia/common',[],function(){
 			}
 
 			return result;
+		},
+
+		is_bad_request: function(xhr){
+			return (xhr && xhr.status === 400) && ( (xhr.responseJSON && xhr.responseJSON.Type === 'BadRequestException') || (xhr.responseJSON.data && xhr.responseJSON.data.Type === 'BadRequestException') );
+		},
+
+		get_bad_request_error_message: function(xhr){
+			try {
+				if (xhr && xhr.status === 400){
+					return xhr.responseJSON.Message || xhr.responseJSON.data.Message;
+				}
+			} catch(e){
+				console.warn('Could not get "Bad Request" error message', e);
+			}
+
+			return null;
 		}
 
 	};
