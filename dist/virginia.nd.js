@@ -45,8 +45,13 @@ define( 'virginia/common',[],function(){
 
 			result = Math.abs(number).toFixed(options.decimals);
 
+			if(options.trim_zero_cents) {
+				result = parseFloat(result);
+			}
+
 			if(options.thousands_separator) {
-				result = result.replace(/(\d)(?:(?=\d+(?=[^\d.]))(?=(?:\d{3})+\b)|(?=\d+(?=\.))(?=(?:\d{3})+(?=\.)))/g, "$1" + options.thousands_separator);
+				result = result.toString();
+				result = result.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + options.thousands_separator);
 			}
 
 			if(options.currency) {
