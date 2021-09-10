@@ -53,8 +53,8 @@ define( 'virginia/common',[],function(){
 				result = result.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + options.thousands_separator);
 			}
 
-			if ( result.indexOf( '.' ) >= 0 ) {
-				result = result.replace( /,/g, '' );
+			if (result.indexOf('.') >= 0 && result.indexOf(',') > result.indexOf('.')) {
+				result = result.replace(/,/g, '');
 			}
 
 			if(options.currency) {
