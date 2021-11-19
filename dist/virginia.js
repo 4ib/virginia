@@ -45,8 +45,16 @@ define( 'virginia/common',[],function(){
 
 			result = Math.abs(number).toFixed(options.decimals);
 
+			if(options.trim_zero_cents && options.trim_zero_cents !== 'false') {
+				result = parseFloat(result).toString();
+			}
+
 			if(options.thousands_separator) {
-				result = result.replace(/(\d)(?:(?=\d+(?=[^\d.]))(?=(?:\d{3})+\b)|(?=\d+(?=\.))(?=(?:\d{3})+(?=\.)))/g, "$1" + options.thousands_separator);
+				result = result.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + options.thousands_separator);
+			}
+
+			if (result.indexOf('.') >= 0 && result.indexOf(',') > result.indexOf('.')) {
+				result = result.replace(/,/g, '');
 			}
 
 			if(options.currency) {
@@ -414,6 +422,17 @@ define('virginia/templates',[
 					}
 				}
 				return result + '%';
+			},
+
+			format_phone: function( number, format ) {
+				var cleaned = ('' + number).replace(/\D/g, '');
+				var match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
+				if (match) {
+					var intlCode = (match[1] ? '+1 ' : '');
+					var formatted = [intlCode, '(', match[2], ') ', match[3], '-', match[4]].join('');
+					return new Handlebars.SafeString( formatted );
+				}
+				return new Handlebars.SafeString( number );
 			}
 
 		},

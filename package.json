@@ -21,7 +21,12 @@
     "gulp-requirejs-optimize": "^1.2.0",
     "run-sequence": "^1.1.5"
   },
-  "scripts": {},
+  "resolutions": {
+    "graceful-fs": "4.2.3"
+  },
+  "scripts": {
+    "preinstall": "npx npm-force-resolutions"
+  },
   "author": "4ib",
   "license": "ISC"
 }
