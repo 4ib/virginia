@@ -469,7 +469,7 @@ define( 'virginia/common',[],function(){
 
 		break_lines: function(s) {
 			if (s) {
-				return s.replace(/(?:\r\n|\r|\n)/g, '<br />')
+				return s.replace(/(?:\r\n|\r|\n)/g, '<br />');
 			}
 			return s;
 		},
@@ -527,7 +527,7 @@ define( 'virginia/common',[],function(){
 				multiplier: '',
 				rate: '',
 				decimals: 3
-			}
+			};
 			var opts = options;
 
 			if( window.SiteSettings && window.SiteSettings.Currency ) {
@@ -603,13 +603,13 @@ define('virginia/templates',[
 				return d2.promise();
 			} else {
 				if (Templates._templates_cache.hasOwnProperty(template_url)) {
-					var t = Templates._templates_cache[template_url];
+					var t1 = Templates._templates_cache[template_url];
 					var html = Templates._html_cache[template_url];
 					//console.log('Template ' + template_url + ' found in cache.');
 					var d1 = jQuery.Deferred();
 					setTimeout(
 						function () {
-							d1.resolve(t, html);
+							d1.resolve(t1, html);
 						},
 						1
 					);
@@ -942,9 +942,14 @@ define('virginia/view',[
 
 
 		_process_template: function(template, context){
-			var html = Templates.render(template, context);
-			return html;
-		},
+            var html = '';
+            try {
+                html = Templates.render(template, context);
+                return html;
+            } catch (e) {
+                throw new Error('Can`t render template: ' + this.template_name);
+            }
+        },
 
 		/**
 		 *
