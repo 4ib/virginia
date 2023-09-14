@@ -501,6 +501,27 @@ define('virginia/view',[
 				html = Templates.render(template, context);
 				return html;
 			} catch (e) {
+				var errorMSG = document.createElement('div');
+				var msg = 'Can`t render template: ' + this.template_name;
+
+				errorMSG.style.backgroundColor = '#fff';
+				errorMSG.style.color = '#f00';
+				errorMSG.style.position = 'fixed';
+				errorMSG.style.top = '0';
+				errorMSG.style.left = '0';
+				errorMSG.style.width = '100%';
+				errorMSG.style.zIndex = '9999';
+				errorMSG.style.padding = '20px';
+				errorMSG.style.textAlign = 'center';
+				errorMSG.style.borderBottom = '1px solid #ccc';
+				errorMSG.style.fontSize = '16px';
+
+				if (e.message) {
+					msg += '<br>' + e.message;
+				}
+				errorMSG.innerHTML = msg;
+
+				document.body.appendChild(errorMSG);
 				throw new Error('Can`t render template: ' + this.template_name);
 			}
 		},
